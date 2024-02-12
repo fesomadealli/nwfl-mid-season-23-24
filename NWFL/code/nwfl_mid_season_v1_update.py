@@ -2802,33 +2802,49 @@ nwfl_relegated_2022_23 = ['Osun Babes', 'Ibom Angels']
 # Colors
 others = '#B8C5C5'
 relegated = '#C8553D'
-facecolor = '#D9D9D9'
+facecolor = 'white' 
+alt_color = "#588B8B"
 
 #
 # Create a figure and axes with dark background
 fig, ax = plt.subplots(ncols=3, nrows=1, figsize=(15, 3))
 fig.patch.set_facecolor(facecolor)
 
-i = 0
+i = MP = gp = 0
 for season in sorted(relegtn_df.Season.unique()):
     # filter df
     season_df = relegtn_df.loc[relegtn_df.Season == season]
     # calc league avg
     if season_df['GF'].sum() == season_df['GA'].sum():
-      lavg = (season_df['GF'].sum()) / (2 * (MP * (MP-1)/2))
-      print("season: ", season, " | ", lavg)
+      # get matches played per team
+      MP = int(season_df.MP.unique())
+      print("Matches Played Per Team: ", MP)
+      print("Num of Teams: ", MP+1)
+      # calc games played per group
+      gp = int(MP * (MP+1)/2)
+      print("Games Played In Each Group: ", gp)
+      # total games played
+      gplayed = 2*gp
+      print("Total Games in Mid Season: ", 2*gp)
+      # calc total goals scored
+      gscored = season_df['GF'].sum()
+      print("Goals Scored: ", gscored)
+      # league average
+      lavg = (gscored / gplayed).round(2)
+      print("season: ", season, " | ", lavg.round(2))
     else:
       print('Error In Goals Calculation!!')
 
     if i < relegtn_df.Season.nunique():
       # setting up plot axes
-      ax[i].set_xlim(0.0, max(season_df.GF_Avg + 0.2))
       ax[i].set_ylim(0.0, max(season_df.GA_Avg + 0.5))
-      ax[i].set_facecolor(facecolor)
-      # Change the color of ticks to red
-      ax[i].tick_params(axis='both', colors='black')
+      ax[i].set_xlim(0.0, max(season_df.GF_Avg + 0.5))
+      ax[i].set_facecolor(facecolor) 
+      # Change the color of ticks
+      ax[i].tick_params(axis='both', colors=alt_color)
       hide_spines(axes=ax[i], which_spine='all')
-
+      if i > 0:
+        ax[i].set_yticks([])
       # Scatter plot
       for j, team in season_df.iterrows():
           x_value = team['GF_Avg']
@@ -2873,22 +2889,26 @@ for season in sorted(relegtn_df.Season.unique()):
                   fontsize=10, path_effects=[withStroke(linewidth=0.25, foreground='black')])
 
       # Showing League Average
-      ax[i].vlines(x=lavg, ymin=ax[i].get_ylim()[0], ymax=ax[i].get_ylim()[1], linestyle='--', color='black', alpha=.8, zorder=4)
-      ax[i].hlines(y=lavg, xmin=ax[i].get_xlim()[0], xmax=ax[i].get_xlim()[1], linestyle='--', color='black', alpha=.8, zorder=4)
+      ax[i].vlines(x=lavg, ymin=ax[i].get_ylim()[0], ymax=ax[i].get_ylim()[1], linestyle='--', color='black', alpha=.1, zorder=4)
+      ax[i].hlines(y=lavg, xmin=ax[i].get_xlim()[0], xmax=ax[i].get_xlim()[1], linestyle='--', color='black', alpha=.1, zorder=4)
       # Add arrow and text at the point of intersection
-      arrow_properties = dict(facecolor='black', edgecolor='black', arrowstyle='->')
+      arrow_properties = dict(facecolor='black', edgecolor=alt_color, arrowstyle='->', alpha=.5)
+      if i > 0:
+        arrow_spine = 2.5
+      else:
+        arrow_spine = 2.25
       ax[i].annotate('({}) LAvg'.format(lavg),
                   xy=(lavg, lavg), xycoords='data',
-                  xytext=(2.5, 2.5), textcoords='data',
+                  xytext=(arrow_spine, arrow_spine), textcoords='data',
                   arrowprops=arrow_properties,
-                  fontsize=10, color='black',
+                  fontsize=10, color=alt_color,
                   path_effects=[withStroke(linewidth=0.25, foreground='black')])
       # Set title
       ax[i].set_title(f'{(season)}'.upper(), color='black', fontweight='semibold')
       # change axes
       i +=1
 
-
+plt.savefig("relegation_goals_averages_2018_to_Date.png", dpi=200)
 plt.show();
 
 
