@@ -1,7 +1,7 @@
 # nwfl-mid-season-23-24
 An analytical look at mid-season numbers from the 2023/24 season of the Nigerian Womens Football League (NWFL)
 
-Featuring
+Featuring:
 — Season Overview
 — Gameweek Analysis
 — Performance Analysis 
